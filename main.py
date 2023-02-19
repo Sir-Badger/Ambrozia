@@ -98,7 +98,7 @@ default_account={
 print(" - building bot")
 intents = discord.Intents.default()
 intents.message_content = True
-QuestBored = commands.Bot(command_prefix=conf["prefix"], help_command=None, intents=intents) # bot object
+QuestBored = commands.Bot(command_prefix="!", help_command=None, intents=intents) # bot object
 
 # psycopg2 things
 print(" - establishing connection to db")
@@ -364,7 +364,7 @@ async def stats(ctx, member:discord.Member=None): # show member stats
 
         account=query.fetchone() # get account info
         if account: # if the player is in the database
-            query.execute(f"""SELECT account_id, total_xp FROM {conf['tables']['xp']} WHERE active = True ORDER BY total_xp DESC""")
+            query.execute(f"""SELECT account_id, xp FROM {conf['tables']['xp']} ORDER BY xp DESC""")
             ordered = query.fetchall()
             if account[3]==20:
                 next_lvl=''
@@ -437,7 +437,7 @@ async def reset(ctx): # reset user's stats
     account=query.fetchone() # get user info lmao
     if account: # found user in db
         query.execute(f"""UPDATE {conf['tables']['xp']}
-            SET xp = {default_account['xp']}, word_cache = {default_account['word_cache']}, level = {default_account['level']}, lvl_notification = {default_account['lvl_notification']}
+            SET xp = {default_account['xp']}, word_cache = {default_account['word_cache']}, level = {default_account['level']}, lvl_notification = {default_account['lvl_notification']}, weekly_xp = {default_account['weekly_xp']}
             WHERE account_id = {member.id}""") # reset lvl & xp
         database.commit() # commit db
         tembed=discord.Embed(description=f"Reset {member.mention}'s xp and level\n{account[1]} -> 0 xp", color=member.color, title="Reset user XP")
