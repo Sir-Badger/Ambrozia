@@ -137,9 +137,9 @@ def find_substring_indexes(desired_substring, message, index_type='start'): # re
     array_of_indexes=[]
     # start the search at 0
     search_start_index=0
-    while search_start_index < len(message.content):
+    while search_start_index < len(message):
         # look for the substring
-        find_index=message.content[search_start_index:].find(desired_substring)
+        find_index=message[search_start_index:].find(desired_substring)
         # check if we found it
         if find_index!=-1:
             # if we found it, add it to our results
