@@ -221,17 +221,17 @@ def remove_redundant_pairs(valid_pairs): # returns a pair without redundant pair
 
     return valid_pairs
 
-async def proccess_msg_for_rp(message): # processes msg in terms of rp
+async def proccess_msg_for_rp(msg): # processes msg in terms of rp
     global debug_mode
 
     if debug_mode: # Number of substrings in the message (Debug)
-        num_of_stars=message.content.count('*')
-        num_of_quotes=message.content.count('"')
-        num_of_double_stars=message.content.count('**')
+        num_of_stars=msg.content.count('*')
+        num_of_quotes=msg.content.count('"')
+        num_of_double_stars=msg.content.count('**')
 
     t0=time.time()
     message=''
-    for line in message.content.split("\n"): # remove lines that start with '> '
+    for line in msg.content.split("\n"): # remove lines that start with '> '
         if not line.startswith((">","> ","- ","-")) and line != '':
             message+=" "+line
 
