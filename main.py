@@ -297,7 +297,7 @@ async def proccess_msg_for_rp(msg): # processes msg in terms of rp
 
         print('\n')
 
-    await add_xp(word_count, message.author, rp=True) # add xp to database
+    await add_xp(word_count, msg.author, rp=True) # add xp to database
 
 async def add_xp(xp, user, rp=False): # add xp to cache
     query = database.cursor() # query object
