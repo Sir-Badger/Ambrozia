@@ -163,6 +163,64 @@ def find_substring_indexes(desired_substring, message, index_type='start'): # re
             break
     return array_of_indexes
 
+def check_pair_overlap(main_pair, secondary_pair): # checks the overlap of two pairs
+    debug_mode=False
+    # one is inside the other
+    if secondary_pair[0] in range(main_pair[0], main_pair[1]) and secondary_pair[1] in range(main_pair[0], main_pair[1]): # sec inside main
+        if debug_mode: print(f"{secondary_pair} is inside {main_pair}") 
+        return 1
+    elif main_pair[0] in range(secondary_pair[0], secondary_pair[1]) and main_pair[1] in range(secondary_pair[0], secondary_pair[1]): # main is inside sec
+        if debug_mode: print(f"{main_pair} is inside {secondary_pair}") 
+        return 2
+    elif secondary_pair[0] in range(main_pair[0], main_pair[1]) : # sec starts in main
+        if debug_mode: print(f"{secondary_pair} starts inside {main_pair}") 
+        return 3
+    elif secondary_pair[1] in range(main_pair[0], main_pair[1]) : # sec ends in main
+        if debug_mode: print(f"{secondary_pair} ends inside {main_pair}") 
+        return 4
+    else: # they don't touch
+        if debug_mode: print(f"{main_pair} doesn't overlap with {secondary_pair}")
+        return False
+
+def remove_redundant_pairs(valid_pairs): # returns a pair without redundant pairs
+    main_index=0
+    while True: # loop as long as there's things to remove
+        if main_index==len(valid_pairs): # if we're done removing, move to the next main pair
+            break
+        main_pair = valid_pairs[main_index] # get main pair
+        sec_index=main_index+1 # set the start point for sec pairs
+
+        while True: # loop through all the other pairs
+            if sec_index==len(valid_pairs): # if we ran out of secondary pairs, move onto the next main pair
+                break
+            secondary_pair = valid_pairs[sec_index] # update secondary pair
+
+            overlap=check_pair_overlap(main_pair, secondary_pair) # see overlap
+
+            if overlap == 1: # sec is inside main
+                valid_pairs.remove(secondary_pair) # yeet out the redundant pair
+            elif overlap == 2: # main is inside sec
+                valid_pairs.remove(secondary_pair) # yeet out the soon to be redundant pair
+                main_pair=secondary_pair # expand the main pair
+                valid_pairs[main_index]=main_pair # update list
+                sec_index=main_index+1 # reset sec index
+            elif overlap == 3: # sec starts in main
+                valid_pairs.remove(secondary_pair) # yeet out the soon to be redundant pair
+                main_pair=[main_pair[0], secondary_pair[1]] # expand the main pair
+                valid_pairs[main_index]=main_pair # update list
+                sec_index=main_index+1 # reset sec index
+            elif overlap == 4: # main starts in sec
+                valid_pairs.remove(secondary_pair) # yeet out the soon to be redundant pair
+                main_pair=[secondary_pair[0], main_pair[1]] # expand the main pair
+                valid_pairs[main_index]=main_pair # update list
+                sec_index=main_index+1 # reset sec index
+            else: # they don't overlap -> move onto the next pair to check against
+                sec_index+=1
+
+        main_index+=1 # move onto the next main pair
+
+    return valid_pairs
+
 async def proccess_msg_for_rp(message): # processes msg in terms of rp
     global debug_mode
 
@@ -171,21 +229,35 @@ async def proccess_msg_for_rp(message): # processes msg in terms of rp
         num_of_quotes=message.content.count('"')
         num_of_double_stars=message.content.count('**')
 
+    t0=time.time()
+    message=''
+    for line in message.content.split("\n"): # remove lines that start with '> '
+        if not line.startswith((">","> ","- ","-")) and line != '':
+            message+=" "+line
+
     # Indexes of the substrings
-    single_star_index=find_substring_indexes('*', message)
-    quote_index=find_substring_indexes('"', message)
+    star_index=find_substring_indexes('*', message)
     double_star_index=find_substring_indexes('**', message, "all")
 
-    for double in double_star_index: # loop through single_star_index and remove the **
-        single_star_index.remove(double)
+    quote_index=find_substring_indexes('"', message)
 
-    # Making basic ** and "" pairs
-    valid_pairs=[]
+    underscore_index=find_substring_indexes('_', message)
+    double_under_index=find_substring_indexes('__', message, "all")
+
+    for double in double_star_index: # loop through star_index and remove the **
+        star_index.remove(double)
+    for double in double_under_index: # loop through underscore_index and remove the __
+        underscore_index.remove(double)
+
+    
+    
     cached_star=[False]
     cached_quote=[False]
-
-    for char in range(0, len(message.content)): # going through the message char by char, building pairs
-        if char in single_star_index: # char is a star
+    cached_under=[False]
+    # Make valid pairs of "", **, exc
+    valid_pairs=[]
+    for char in range(0, len(message)): # going through the message char by char, building pairs
+        if char in star_index: # char is a star
             if cached_star[0]: # we have a cached star
                 valid_pairs.append([cached_star[1], char])
                 cached_star[0]=False
@@ -197,38 +269,16 @@ async def proccess_msg_for_rp(message): # processes msg in terms of rp
                 cached_quote[0]=False
             else: # we don't have a cached quote
                 cached_quote=[True, char]
+        elif char in underscore_index: #char is an underscore
+            if cached_under[0]: # we have a cached underscore
+                valid_pairs.append([cached_under[1], char])
+                cached_under[0]=False
+            else: # we don't have a cached underscore
+                cached_under=[True, char]
+    valid_pairs=remove_redundant_pairs(valid_pairs)
 
-    lenght=len(valid_pairs)
-    p_i=0
-    while p_i < lenght: # loop through pairs to see which ones are overlapping
-        pair_one=valid_pairs[p_i] # set main pair
-        for pair_two in valid_pairs: # loop through other pairs
-            if pair_one!=pair_two: # if they are different pairs
-                if pair_one[0] > pair_two[0]: # p1 starts after p2 starts
-                    if pair_one[0] > pair_two[1]: # p1 comes after p2 and they don't touch
-                        pass
-                    else: # p1 starts inside p2
-                        if pair_one[1]<pair_two[1]: # p1 is inside p2
-                            if debug_mode: print(f"{pair_one} is inside {pair_two}")
-                            valid_pairs.remove(pair_one)
-                        else: # they overlap
-                            if debug_mode: print(f"{pair_one} overlaps with {pair_two}")
-                            pair_one[0]=pair_two[0]
-                            valid_pairs.remove(pair_two)
-                else: # p1 starts before p2 starts
-                    if pair_one[1]<pair_two[0]: # p1 comes before p2 and they don't touch
-                        pass
-                    else: # p2 starts inside p1
-                        if pair_one[1]>pair_two[1]: # p2 is inside p1:
-                            if debug_mode: print(f"{pair_two} is inside {pair_one}")
-                            valid_pairs.remove(pair_two)
-                        else: #they overlap
-                            if debug_mode: print(f"{pair_two} overlaps with {pair_one}")
-                            pair_one[1]=pair_two[1]
-                            valid_pairs.remove(pair_two)
-        # update len & proceed to the next one
-        lenght=len(valid_pairs)
-        p_i+=1
+    for char_to_rem in ("*","`","|",'"',"_"): # cleanup
+        message = message.replace(char_to_rem," ")
 
     word_count=0
     for rp_pair in valid_pairs: # clean up rp & split it up into words
@@ -241,7 +291,7 @@ async def proccess_msg_for_rp(message): # processes msg in terms of rp
 
     if debug_mode: # some console output for debugging
         print(f'Num of * = {num_of_stars} | Num of " = {num_of_quotes} | Num of ** = {num_of_double_stars}')
-        print(f'indexes of * = {single_star_index} | indexes of " = {quote_index} | indexes of ** = {double_star_index}')
+        print(f'indexes of * = {star_index} | indexes of " = {quote_index} | indexes of ** = {double_star_index}')
 
         print(f'valid pairs = {valid_pairs} | total word count = {word_count}')
 
