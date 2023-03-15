@@ -282,7 +282,7 @@ async def proccess_msg_for_rp(msg): # processes msg in terms of rp
 
     word_count=0
     for rp_pair in valid_pairs: # clean up rp & split it up into words
-        rp_text=message.content[rp_pair[0]:rp_pair[1]]
+        rp_text=message[rp_pair[0]:rp_pair[1]]
         # clean up
         rp_text.replace('*','')
         rp_text.replace('"','')
