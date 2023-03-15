@@ -281,13 +281,10 @@ async def proccess_msg_for_rp(msg): # processes msg in terms of rp
         message = message.replace(char_to_rem," ")
 
     word_count=0
-    for rp_pair in valid_pairs: # clean up rp & split it up into words
-        rp_text=message[rp_pair[0]:rp_pair[1]]
-        # clean up
-        rp_text.replace('*','')
-        rp_text.replace('"','')
-        # count them words & add them to the counter
-        word_count+=len(rp_text.split(' '))
+    for rp_pair in valid_pairs: # count them words & add them to the counter
+        rp_text=message[rp_pair[0]+1:rp_pair[1]]
+        for word in rp_text.split(' '):
+            if word != '': word_count+=1 # ignore empty
 
     if debug_mode: # some console output for debugging
         print(f'Num of * = {num_of_stars} | Num of " = {num_of_quotes} | Num of ** = {num_of_double_stars}')
