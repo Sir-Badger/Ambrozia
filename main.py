@@ -323,7 +323,7 @@ async def add(ctx, xp=0, member:discord.Member=None): # add xp to user
                 tembed=discord.Embed(description=f"Added {xp}xp to {member.mention}!\n ( 0 -> {xp} )", color=member.color, title="Adding xp")
     else: # if they don't have a DM role
         member=ctx.author
-        tembed=discord.Embed(description=f"In order to add XP to someone, you need to be a DM!\n(DM Myrmidon or DM Acolyte)", color=member.color, title="Cannot add xp")
+        tembed=discord.Embed(description=f"In order to add XP to someone, you need to be a DM!\n(Myrmidon, Acolyte, Disciple)", color=member.color, title="Cannot add xp")
 
     await ctx.send(embed=tembed) # send the fancy
 
