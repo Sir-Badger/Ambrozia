@@ -118,7 +118,7 @@ def checkDMrole(member): # check whether the user has a DM role
             return True # return true
     return False # if we loop through all roles without getting a DM role, return false
 
-def reset_weekly_cap():
+async def reset_weekly_cap():
     query = database.cursor() # query object
     print("====== Reseting word limits ======")
     t=time.time()
@@ -129,6 +129,12 @@ def reset_weekly_cap():
     print(f"time to reset: {time.time()-t}")
     print("\n")
     query.close()
+
+    await notify((),"Reset XP")
+
+async def notify_blaze_biweekly():
+    blaze_acc=QuestBored.get_user(916415828151398420)
+    await notify((blaze_acc),"Crime reset, you nerd")
 
 def keep_alive():
     query = database.cursor()
@@ -217,8 +223,10 @@ def add_account_to_db(id, xp=default_account['xp'], word_cache=default_account['
 async def on_ready(): # login msg + ping
     sched.start() #start scheduler
     sched.add_job(reset_weekly_cap, CronTrigger(day_of_week="0",minute="0",second="0",hour="0"))
+    sched.add_job(notify_blaze_biweekly, CronTrigger(week="*/2", day_of_week="0",minute="0",second="0",hour="0"))
     sched.add_job(keep_alive, CronTrigger(minute="0",second="0",hour="*/6"))
 
+    await notify_blaze_biweekly()
     print(f"""
 -----------
 Logged in as {QuestBored.user}
