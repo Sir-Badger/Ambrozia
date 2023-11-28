@@ -130,10 +130,10 @@ async def reset_weekly_cap():
     print("\n")
     query.close()
 
-    await notify([],"Reset XP")
+    await notify(msg="Reset XP limits")
 
 async def notify_blaze_biweekly():
-    await notify("Crime reset, you nerd <@916415828151398420>")
+    await notify(msg="Crime reset, you nerd <@916415828151398420>")
 
 def keep_alive():
     query = database.cursor()
