@@ -133,7 +133,7 @@ async def reset_weekly_cap():
     await notify([],"Reset XP")
 
 async def notify_blaze_biweekly():
-    await notify([],"Crime reset, you nerd <@916415828151398420>")
+    await notify("Crime reset, you nerd <@916415828151398420>")
 
 def keep_alive():
     query = database.cursor()
@@ -206,7 +206,10 @@ async def notify(member_list, msg="You have been notified!"): # notify role/memb
     for m in member_list: # loop through members to @
         mention_text+=m.mention+" "
 
-    await notify_channel.send(f"{mention_text}\n{msg}") # mention
+    if mention_text != "> ":
+        await notify_channel.send(f"{mention_text}\n{msg}") # mention
+    else:
+        await notify_channel.send(f"{mention_text}{msg}") # mention
 
 # add account to db using default template
 def add_account_to_db(id, xp=default_account['xp'], word_cache=default_account['word_cache'], level=default_account['level'], lvl_notification=default_account['lvl_notification']):
