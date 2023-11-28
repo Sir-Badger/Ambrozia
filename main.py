@@ -199,7 +199,7 @@ WHERE account_id = {user.id};""")
             add_account_to_db(id=user.id, xp=xp)
     query.close() # close querying
 
-async def notify(member_list, msg="You have been notified!"): # notify role/member of something
+async def notify(member_list=[], msg="You have been notified!"): # notify role/member of something
     notify_channel = QuestBored.get_channel(918373129326317568) # set notify channel
 
     mention_text="> "
