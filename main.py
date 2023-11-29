@@ -225,7 +225,7 @@ def add_account_to_db(id, xp=default_account['xp'], word_cache=default_account['
 async def on_ready(): # login msg + ping
     sched.start() #start scheduler
     sched.add_job(reset_weekly_cap, CronTrigger(day_of_week="0",minute="0",second="0",hour="0"))
-    sched.add_job(notify_blaze_biweekly, CronTrigger(week="*/2", day_of_week="sat",minute="0",second="0",hour="0"))
+    sched.add_job(notify_blaze_biweekly, CronTrigger(week="2-53/2", day_of_week="sat",minute="0",second="0",hour="0"))
     sched.add_job(keep_alive, CronTrigger(minute="0",second="0",hour="*/6"))
 
     print(f"""
