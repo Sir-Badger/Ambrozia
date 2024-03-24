@@ -191,10 +191,11 @@ WHERE account_id = {user.id};""")
         return f"{account[1]} -> {account[1]+xp}"
     else: # add account to database
         if rp==True: # processing rp xp
-            overflow = xp % 4 # get overflow XP to be stored used cache next time
-            xp = ( xp - overflow ) / 4 # divide valid xp by four, store overflow as cache
+            overflow = xp % level_rates[1] # get overflow XP to be stored used cache next time
+            xp = ( xp - overflow ) / level_rates[1] # divide valid xp by four, store overflow as cache
+            if xp > rp_cap[1]: xp = rp_cap[1]
 
-            add_account_to_db(id=user.id, xp=xp, word_cache=overflow) # add acc to db
+            add_account_to_db(id=user.id, xp=xp, word_cache=overflow, weekly_xp=xp) # add acc to db
         else: # regular xp
             add_account_to_db(id=user.id, xp=xp)
     query.close() # close querying
@@ -212,11 +213,11 @@ async def notify(member_list=[], msg="You have been notified!"): # notify role/m
         await notify_channel.send(f"{mention_text}{msg}") # mention
 
 # add account to db using default template
-def add_account_to_db(id, xp=default_account['xp'], word_cache=default_account['word_cache'], level=default_account['level'], lvl_notification=default_account['lvl_notification']):
+def add_account_to_db(id, xp=default_account['xp'], word_cache=default_account['word_cache'], level=default_account['level'], lvl_notification=default_account['lvl_notification'], weekly_xp=default_account['weekly_xp']):
     query = database.cursor() # query object
     cap=rp_cap[level]
     query.execute(f"""INSERT INTO {conf['tables']['xp']}(account_id, xp, word_cache, level, lvl_notification, weekly_xp)
-                VALUES ({id}, {xp}, {word_cache}, {level}, {lvl_notification}, 0)""")
+                VALUES ({id}, {xp}, {word_cache}, {level}, {lvl_notification}, {weekly_xp})""")
     database.commit()
     query.close() # close querying
 
