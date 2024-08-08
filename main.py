@@ -1,6 +1,6 @@
 import asyncio # asynchronous funcionality
 import discord # basic discord functions
-from discord.ext import commands, tasks # discord bot functions
+from discord.ext import commands # discord bot functions
 import mysql.connector # mysql functions
 import time # for time purposes
 from apscheduler.schedulers.asyncio import AsyncIOScheduler # async scheduler
@@ -63,8 +63,7 @@ level_rates={
     17:1,
     18:1,
     19:1,
-    20:1
-}
+    20:1}
 rp_cap={
     1:3500,
     2:3500,
@@ -85,8 +84,7 @@ rp_cap={
     17:17500,
     18:17500,
     19:17500,
-    20:17500
-}
+    20:17500}
 default_account={
                 "xp":0,
                 "word_cache":0,
@@ -101,7 +99,7 @@ intents = discord.Intents.default()
 intents.message_content = True
 QuestBored = commands.Bot(command_prefix="!", help_command=None, intents=intents) # bot object
 
-# psycopg2 things
+# database things
 print(" - establishing connection to db")
 database = mysql.connector.connect(
     host=conf["db_credentials"]["host"],
@@ -115,7 +113,7 @@ database = mysql.connector.connect(
 def checkDMrole(member): # check whether the user has a DM role
     for role in member.roles: # loop through all the roles the member has
         if role.id in conf["mod_roles"]: # is the current role a DM role?
-            return True # return true
+            return True
     return False # if we loop through all roles without getting a DM role, return false
 
 async def reset_weekly_cap():
