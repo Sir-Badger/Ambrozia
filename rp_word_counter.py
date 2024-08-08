@@ -1,4 +1,4 @@
-lines_to_ignore=(">","> ","- ","-")
+lines_to_ignore=(">","> ","- ")
 chars_to_ignore=("*","`","|",'"',"_")
 rp_indicators=('*','"','_')
 
